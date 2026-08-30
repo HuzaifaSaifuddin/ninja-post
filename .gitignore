@@ -1,0 +1,17 @@
+/.bundle/
+/vendor/bundle/
+*.gem
+.DS_Store
+
+# runtime / logs
+/tmp/
+*.log
+/pids/
+*.pid
+
+# local env
+/.env
+/.env.*
+
+# generated artifacts (feedback XML dumps, etc.)
+/out/
