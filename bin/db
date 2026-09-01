@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Database management CLI. Usage:
+#   bin/db create     create the database for APP_ENV
+#   bin/db drop       drop it
+#   bin/db migrate    run all pending migrations
+#   bin/db rollback   roll back one migration
+#   bin/db reset      drop + create + migrate
+#   bin/db version    show current schema version
+#
+# Target database follows APP_ENV (default: development), e.g.
+#   APP_ENV=test bin/db reset
+
+require "bundler/setup"
+Bundler.require(:default)
+
+require_relative "../config/database"
+require "sequel"
+Sequel.extension :migration
+
+DB_MOD      = NinjaPost::Database
+MIGRATE_DIR = File.expand_path("../db/migrate", __dir__)
+
+def db_name = URI.parse(DB_MOD.url).path.delete_prefix("/")
+
+# schema_info is created by the first migration; treat "missing" as version 0.
+def current_version(db)
+  db.table_exists?(:schema_info) ? (db[:schema_info].get(:version) || 0) : 0
+end
+
+def on_admin
+  Sequel.connect(DB_MOD.admin_url) { |admin| yield admin }
+end
+
+def create
+  on_admin do |admin|
+    if admin[:pg_database].where(datname: db_name).any?
+      puts "= #{db_name} already exists"
+    else
+      admin.run(%(CREATE DATABASE "#{db_name}"))
+      puts "✔ created #{db_name}"
+    end
+  end
+end
+
+def drop
+  DB_MOD.disconnect!
+  on_admin do |admin|
+    admin.run(%(DROP DATABASE IF EXISTS "#{db_name}" WITH (FORCE)))
+  end
+  puts "✔ dropped #{db_name}"
+end
+
+def migrate
+  db = DB_MOD.connect!
+  Sequel::Migrator.run(db, MIGRATE_DIR)
+  puts "✔ migrated #{db_name} -> version #{current_version(db)}"
+end
+
+def rollback
+  db = DB_MOD.connect!
+  target = [current_version(db) - 1, 0].max
+  Sequel::Migrator.run(db, MIGRATE_DIR, target: target)
+  puts "✔ rolled back #{db_name} -> version #{target}"
+end
+
+def version
+  db = DB_MOD.connect!
+  puts "#{db_name} @ version #{current_version(db)}"
+end
+
+case ARGV[0]
+when "create"   then create
+when "drop"     then drop
+when "migrate"  then migrate
+when "rollback" then rollback
+when "reset"    then drop; create; migrate
+when "version"  then version
+else
+  warn "usage: bin/db {create|drop|migrate|rollback|reset|version}"
+  exit 1
+end

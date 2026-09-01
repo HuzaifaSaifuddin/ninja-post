@@ -1,28 +1,39 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    bigdecimal (4.1.2)
     nio4r (2.7.5)
+    pg (1.6.3)
+    pg (1.6.3-arm64-darwin)
     puma (6.6.1)
       nio4r (~> 2.0)
     rack (3.2.7)
     rackup (2.3.1)
       rack (>= 3)
+    sequel (5.108.0)
+      bigdecimal
 
 PLATFORMS
   arm64-darwin-23
   ruby
 
 DEPENDENCIES
+  pg (~> 1.5)
   puma (~> 6.4)
   rack (~> 3.1)
   rackup (~> 2.2)
+  sequel (~> 5.80)
 
 CHECKSUMS
+  bigdecimal (4.1.2) sha256=53d217666027eab4280346fba98e7d5b66baaae1b9c3c1c0ffe89d48188a3fbd
   bundler (4.0.11) sha256=5bcec0fb78302e48d02ee46f10ee6e6942be647ba5b44a6d1ddfda9a240ce785
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
+  pg (1.6.3) sha256=1388d0563e13d2758c1089e35e973a3249e955c659592d10e5b77c468f628a99
+  pg (1.6.3-arm64-darwin) sha256=7240330b572e6355d7c75a7de535edb5dfcbd6295d9c7777df4d9dddfb8c0e5f
   puma (6.6.1) sha256=b9b56e4a4ea75d1bfa6d9e1972ee2c9f43d0883f011826d914e8e37b3694ea1e
   rack (3.2.7) sha256=93e13e1c24f93556671d85d2d79fa228c3485815c50d7e2f265b5330c6528fb7
   rackup (2.3.1) sha256=6c79c26753778e90983761d677a48937ee3192b3ffef6bc963c0950f94688868
+  sequel (5.108.0) sha256=ae5996d1196775427916a2fa36e02f99762ead9affb8ea9b1aec2c0b16bdb3a3
 
 RUBY VERSION
   ruby 3.3.11
