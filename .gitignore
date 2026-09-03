@@ -15,3 +15,6 @@
 
 # generated artifacts (feedback XML dumps, etc.)
 /out/
+
+# task spec — will move to docs/ during the final documentation pass
+/instructions.md
