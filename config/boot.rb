@@ -15,8 +15,8 @@ $LOAD_PATH.unshift File.join(APP_ROOT, "lib")
 require_relative "database"
 NinjaPost::Database.connect!
 
-# Application code. Order matters where there are dependencies; for now just
-# load everything under lib/ninja_post alphabetically.
-Dir[File.join(APP_ROOT, "lib", "ninja_post", "**", "*.rb")].sort.each do |file|
-  require file
-end
+# Application code. Models first (subclasses + associations need the base and
+# each other), then everything else.
+require_relative "../lib/ninja_post/models"
+Dir[File.join(APP_ROOT, "lib", "ninja_post", "models", "*.rb")].sort.each { |f| require f }
+Dir[File.join(APP_ROOT, "lib", "ninja_post", "**", "*.rb")].sort.each { |f| require f }
