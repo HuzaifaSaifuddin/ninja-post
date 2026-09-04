@@ -42,35 +42,19 @@ class RequestTimer
 end
 
 # -----------------------------------------------------------------------------
-# The app itself. Still a stub — a hand-rolled router replaces this next step.
-# Uses Rack::Request / Rack::Response so you can see the ergonomic layer.
+# The app: our hand-rolled Router. Throwaway routes here for now — real
+# actions (create post, rate, top-N, ...) get wired in over the next steps.
 # -----------------------------------------------------------------------------
-app = lambda do |env|
-  req = Rack::Request.new(env)
-  res = Rack::Response.new
+require_relative "lib/ninja_post/router"
 
-  res.set_header("content-type", "application/json")
-
-  payload =
-    case [req.request_method, req.path_info]
-    in ["GET", "/health"]
-      { service: "ninja-post", status: "ok" }
-    in ["POST", "/echo"]
-      raw = req.body.read
-      { received: (JSON.parse(raw) rescue raw), ip: req.ip }
-    else
-      res.status = 404
-      { error: "not_found", path: req.path_info }
-    end
-
-  res.write(JSON.generate(payload))
-  res.finish   # => [status, headers, body]  — the triple Puma wants
-end
+router = NinjaPost::Router.new
+router.get("/health") { |_req, _p| [200, { "content-type" => "application/json" }, ['{"status":"ok"}']] }
+router.get("/posts/:id") { |_req, p| [200, { "content-type" => "application/json" }, [JSON.generate(echoed_id: p["id"])]] }
 
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
-#   request  -> RequestTimer -> app
-#   response <- RequestTimer <- app
+#   request  -> RequestTimer -> router
+#   response <- RequestTimer <- router
 # -----------------------------------------------------------------------------
 use RequestTimer
-run app
+run router
