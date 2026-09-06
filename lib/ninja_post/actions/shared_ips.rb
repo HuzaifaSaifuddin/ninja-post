@@ -14,10 +14,10 @@ module NinjaPost
           .having { count.function.* >= MIN_AUTHORS }
           .select(
             Sequel[:ip_authors][:author_ip].as(:ip),
-            Sequel.function(:array_agg, Sequel[:users][:login]).order(Sequel[:users][:login]).as(:authors)
+            Sequel.function(:array_agg, Sequel[:users][:login]).as(:authors)
           )
           .order(Sequel[:ip_authors][:author_ip])
-          .map { |r| { ip: r[:ip], authors: Array(r[:authors]) } }
+          .map { |r| { ip: r[:ip], authors: Array(r[:authors]).sort } }
       end
     end
   end
