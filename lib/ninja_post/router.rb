@@ -42,8 +42,7 @@ module NinjaPost
     end
 
     def not_found(req)
-      body = JSON.generate(error: "not_found", method: req.request_method)
-      [404, { "content-type" => "application/json" }, [body]]
+      NinjaPost::JSONResponse.render(404, error: "not_found", method: req.request_method, path: req.path_info)
     end
   end
 end

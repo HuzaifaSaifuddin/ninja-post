@@ -42,14 +42,29 @@ class RequestTimer
 end
 
 # -----------------------------------------------------------------------------
-# The app: our hand-rolled Router. Throwaway routes here for now — real
-# actions (create post, rate, top-N, ...) get wired in over the next steps.
+# The app: boot the full stack (DB + models + actions + router), then declare
+# routes. `config/boot.rb` is the single load path every entrypoint shares.
 # -----------------------------------------------------------------------------
-require_relative "lib/ninja_post/router"
+require_relative "config/boot"
 
 router = NinjaPost::Router.new
-router.get("/health") { |_req, _p| [200, { "content-type" => "application/json" }, ['{"status":"ok"}']] }
-router.get("/posts/:id") { |_req, p| [200, { "content-type" => "application/json" }, [JSON.generate(echoed_id: p["id"])]] }
+
+router.get("/health") { |_req, _p| NinjaPost::JSONResponse.render(200, status: "ok") }
+
+router.post("/posts") do |req, _params|
+  body = NinjaPost::JSONResponse.parse_body(req)
+
+  result = NinjaPost::Actions::CreatePost.call(
+    login:   body["login"],
+    ip:      body["ip"] || req.ip,   # explicit IP if given, else the socket's
+    title:   body["title"],
+    content: body["content"]
+  )
+
+  NinjaPost::JSONResponse.render(result.status, result.body)
+rescue JSON::ParserError
+  NinjaPost::JSONResponse.render(400, error: "invalid_json")
+end
 
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
