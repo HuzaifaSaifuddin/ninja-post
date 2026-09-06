@@ -66,6 +66,19 @@ rescue JSON::ParserError
   NinjaPost::JSONResponse.render(400, error: "invalid_json")
 end
 
+router.post("/posts/:id/ratings") do |req, params|
+  body = NinjaPost::JSONResponse.parse_body(req)
+
+  result = NinjaPost::Actions::RatePost.call(
+    post_id: params["id"],
+    value:   body["value"]
+  )
+
+  NinjaPost::JSONResponse.render(result.status, result.body)
+rescue JSON::ParserError
+  NinjaPost::JSONResponse.render(400, error: "invalid_json")
+end
+
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
 #   request  -> RequestTimer -> router
