@@ -46,63 +46,7 @@ end
 # routes. `config/boot.rb` is the single load path every entrypoint shares.
 # -----------------------------------------------------------------------------
 require_relative "config/boot"
-
-router = NinjaPost::Router.new
-
-router.get("/health") { |_req, _p| NinjaPost::JSONResponse.render(200, status: "ok") }
-
-router.post("/posts") do |req, _params|
-  body = NinjaPost::JSONResponse.parse_body(req)
-
-  result = NinjaPost::Actions::CreatePost.call(
-    login:   body["login"],
-    ip:      body["ip"] || req.ip,   # explicit IP if given, else the socket's
-    title:   body["title"],
-    content: body["content"]
-  )
-
-  NinjaPost::JSONResponse.render(result.status, result.body)
-rescue JSON::ParserError
-  NinjaPost::JSONResponse.render(400, error: "invalid_json")
-end
-
-router.post("/posts/:id/ratings") do |req, params|
-  body = NinjaPost::JSONResponse.parse_body(req)
-
-  result = NinjaPost::Actions::RatePost.call(
-    post_id: params["id"],
-    value:   body["value"]
-  )
-
-  NinjaPost::JSONResponse.render(result.status, result.body)
-rescue JSON::ParserError
-  NinjaPost::JSONResponse.render(400, error: "invalid_json")
-end
-
-router.get("/posts/top") do |req, _params|
-  posts = NinjaPost::Actions::TopPosts.call(limit: req.params["n"])
-  NinjaPost::JSONResponse.render(200, posts)
-end
-
-router.get("/ips") do |req, _params|
-  result = NinjaPost::Actions::SharedIps.call
-  NinjaPost::JSONResponse.render(200, result)
-end
-
-router.post("/feedbacks") do |req, _params|
-  body = NinjaPost::JSONResponse.parse_body(req)
-
-  result = NinjaPost::Actions::AddFeedback.call(
-    owner_id: body["owner_id"],
-    comment:  body["comment"],
-    post_id:  body["post_id"],
-    user_id:  body["user_id"]
-  )
-
-  NinjaPost::JSONResponse.render(result.status, result.body)
-rescue JSON::ParserError
-  NinjaPost::JSONResponse.render(400, error: "invalid_json")
-end
+require "ninja_post/app"
 
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
@@ -110,4 +54,4 @@ end
 #   response <- RequestTimer <- router
 # -----------------------------------------------------------------------------
 use RequestTimer
-run router
+run NinjaPost::App.build

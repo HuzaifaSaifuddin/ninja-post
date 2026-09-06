@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module NinjaPost
   # Turns a status + Ruby Hash into the Rack triple every handler returns.
   # Also gives a shared way to read a JSON request body.
