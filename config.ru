@@ -89,6 +89,21 @@ router.get("/ips") do |req, _params|
   NinjaPost::JSONResponse.render(200, result)
 end
 
+router.post("/feedbacks") do |req, _params|
+  body = NinjaPost::JSONResponse.parse_body(req)
+
+  result = NinjaPost::Actions::AddFeedback.call(
+    owner_id: body["owner_id"],
+    comment:  body["comment"],
+    post_id:  body["post_id"],
+    user_id:  body["user_id"]
+  )
+
+  NinjaPost::JSONResponse.render(result.status, result.body)
+rescue JSON::ParserError
+  NinjaPost::JSONResponse.render(400, error: "invalid_json")
+end
+
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
 #   request  -> RequestTimer -> router
