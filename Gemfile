@@ -21,3 +21,11 @@ gem "puma", "~> 6.4"
 gem "sequel", "~> 5.80"
 # pg: the C driver for PostgreSQL. Sequel talks to Postgres through this.
 gem "pg", "~> 1.5"
+
+# --- Development / test tooling ----------------------------------------------
+group :development, :test do
+  # Random but plausible text for db/seeds.rb (post titles, comment bodies).
+  # Not in the :default group, so boot.rb won't auto-require it — seeds.rb
+  # requires "faker" explicitly and it never loads in the web/worker process.
+  gem "faker", "~> 3.4"
+end
