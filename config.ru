@@ -84,6 +84,11 @@ router.get("/posts/top") do |req, _params|
   NinjaPost::JSONResponse.render(200, posts)
 end
 
+router.get("/ips") do |req, _params|
+  result = NinjaPost::Actions::SharedIps.call
+  NinjaPost::JSONResponse.render(200, result)
+end
+
 # -----------------------------------------------------------------------------
 # Assemble the stack. Order matters: the FIRST `use` is the OUTERMOST layer.
 #   request  -> RequestTimer -> router
