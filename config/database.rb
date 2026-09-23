@@ -41,7 +41,6 @@ module NinjaPost
 
       db = Sequel.connect(url, DEFAULTS.dup)
       db.extension :pg_array          # native Postgres arrays (used later for IP -> logins)
-      db.pool.connection_validation_timeout = -1 if ENVIRONMENT == "test"
 
       # Expose as NinjaPost::Database::DB and, for convenience, top-level DB.
       const_set(:DB, db)

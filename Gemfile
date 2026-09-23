@@ -29,3 +29,11 @@ group :development, :test do
   # requires "faker" explicitly and it never loads in the web/worker process.
   gem "faker", "~> 3.4"
 end
+
+group :test do
+  # Minitest ships with Ruby; pinned here so `bundle exec` uses a known
+  # version rather than whatever the interpreter bundles.
+  gem "minitest", "~> 5.22"
+  # Drives fake HTTP requests against the Rack app (get/post + last_response).
+  gem "rack-test", "~> 2.1"
+end
