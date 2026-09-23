@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Standalone long-running process, separate from Puma:
+#   bundle exec ruby bin/worker
+# Fires the feedback export daily at 9:00 (server local time).
+
+require_relative "../config/boot"
+require "rufus-scheduler"
+
+def run_export
+  path = NinjaPost::Actions::ExportFeedbackXml.call
+  warn "[worker] wrote #{path}"
+rescue StandardError => e
+  warn "[worker] export failed: #{e.class}: #{e.message}"
+end
+
+scheduler = Rufus::Scheduler.new
+scheduler.cron("0 9 * * *") { run_export }
+
+# Run once immediately if invoked with --now (handy for testing without
+# waiting for 9am): bundle exec ruby bin/worker --now
+run_export if ARGV.include?("--now")
+
+warn "[worker] scheduled daily export at 09:00, waiting..."
+scheduler.join
