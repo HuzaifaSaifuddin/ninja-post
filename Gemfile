@@ -37,3 +37,11 @@ group :test do
   # Drives fake HTTP requests against the Rack app (get/post + last_response).
   gem "rack-test", "~> 2.1"
 end
+
+# --- Worker --------------------------------------------------------------
+# Cron-like in-process scheduler for the daily feedback export (bin/worker).
+gem "rufus-scheduler", "~> 3.9"
+# rexml: XML builder for the feedback export. Ships with Ruby but is a
+# "default gem" as of 3.x, so Bundler needs it listed to put it on the
+# load path.
+gem "rexml", "~> 3.3"
